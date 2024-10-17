@@ -15,7 +15,7 @@ async function main() {
 
   const tokenTypes = await db.select().from(schema.tokenType)
   if (tokenTypes.length === 0) {
-    for (const type in tokenTypesEnum) {
+    for (const type of Object.values(tokenTypesEnum)) {
       await db.insert(schema.tokenType).values({
         id: v4(),
         key: type
@@ -25,7 +25,7 @@ async function main() {
 
   const categories = await db.select().from(schema.category)
   if (categories.length === 0) {
-    for (const category in categoriesEnum) {
+    for (const category of Object.values(categoriesEnum)) {
       await db.insert(schema.category).values({
         id: v4(),
         key: category
@@ -35,7 +35,7 @@ async function main() {
 
   const donationStatus = await db.select().from(schema.donationStatus)
   if (donationStatus.length === 0) {
-    for (const status in donationStatusEnum) {
+    for (const status of Object.values(donationStatusEnum)) {
       await db.insert(schema.donationStatus).values({
         id: v4(),
         key: status
@@ -45,7 +45,7 @@ async function main() {
 
   const requestStatus = await db.select().from(schema.requestStatus)
   if (requestStatus.length === 0) {
-    for (const status in requestStatusEnum) {
+    for (const status of Object.values(requestStatusEnum)) {
       await db.insert(schema.requestStatus).values({
         id: v4(),
         key: status

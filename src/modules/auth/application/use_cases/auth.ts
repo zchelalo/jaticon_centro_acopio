@@ -1,9 +1,8 @@
 import { AuthRepository } from '../../domain/repository'
-import { UserRepository } from 'src/modules/user/domain/repository'
 import { UserValue } from 'src/modules/user/domain/value'
 import { TokenValue } from '../../domain/value'
 
-import { DTOAuthResponse } from '../dtos/auth_response'
+import { DTOBeneficiaryAuthResponse } from '../dtos/beneficiary_auth_response'
 import { DTOUserCreate } from 'src/modules/user/application/dtos/user_create'
 import { signInSchema, signOutSchema, tokenSchema } from '../schemas/auth'
 import { createUserSchema } from 'src/modules/user/application/schemas/user'
@@ -15,6 +14,13 @@ import { InternalServerError, UnauthorizedError } from 'src/helpers/errors/custo
 
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { BeneficiaryRepository } from 'src/modules/beneficiary/domain/repository'
+import { DonarRepository } from 'src/modules/donar/domain/repository'
+
+import { tokenTypes } from 'src/config/constants'
+import { DTODonarAuthResponse } from '../dtos/donar_auth_response'
+import { BeneficiaryValue } from 'src/modules/beneficiary/domain/value'
+import { DonarValue } from 'src/modules/donar/domain/value'
 
 /**
  * Create a new Auth Use Case.
@@ -40,95 +46,195 @@ export class AuthUseCase {
 
   /**
    * @private
-   * @property {UserRepository} userRepository - The repository used to interact with user data.
+   * @property {BeneficiaryRepository} beneficiaryRepository - The repository used to interact with beneficiary data.
    * This repository is injected via the constructor to decouple the data access layer from the application logic.
   */
-  private readonly userRepository: UserRepository
+  private readonly beneficiaryRepository: BeneficiaryRepository
+
+  /**
+   * @private
+   * @property {DonarRepository} donarRepository - The repository used to interact with donar data.
+   * This repository is injected via the constructor to decouple the data access layer from the application logic.
+  */
+  private readonly donarRepository: DonarRepository
 
   /**
    * Creates an instance of AuthUseCase.
    * 
-   * @param {AuthRepository} authRepository - The repository that provides access to user data.
-   * @param {UserRepository} userRepository - The repository that provides access to user data.
+   * @param {AuthRepository} authRepository - The repository that provides access to auth data.
+   * @param {BeneficiaryRepository} beneficiaryRepository - The repository that provides access to beneficiary data.
+   * @param {DonarRepository} donarRepository - The repository that provides access to donar data.
    * The repositories are injected to allow for greater flexibility and easier testing.
   */
-  constructor(authRepository: AuthRepository, userRepository: UserRepository) {
+  constructor(authRepository: AuthRepository, beneficiaryRepository: BeneficiaryRepository, donarRepository: DonarRepository) {
     this.authRepository = authRepository
-    this.userRepository = userRepository
+    this.beneficiaryRepository = beneficiaryRepository
+    this.donarRepository = donarRepository
   }
 
   /**
-   * @function signIn
-   * @description Sign in a user.
+   * @function signInBeneficiary
+   * @description Sign in beneficiary a user.
    * @param email - Email of user.
    * @param password - Password of user.
-   * @returns {Promise<DTOAuthResponse>} A promise that resolves to the DTOAuthResponse.
+   * @returns {Promise<DTOBeneficiaryAuthResponse>} A promise that resolves to the DTOBeneficiaryAuthResponse.
    * @throws {UnauthorizedError} If the email or password is incorrect.
    * @example
    * ```ts
    * const email = 'test@email.com'
    * const password = '12345678'
-   * const authData = await authUseCase.signIn(email, password)
+   * const authData = await authUseCase.signInBeneficiary(email, password)
    * ```
   */
-  public async signIn(email: string, password: string): Promise<DTOAuthResponse> {
+  public async signInBeneficiary(email: string, password: string): Promise<DTOBeneficiaryAuthResponse> {
     signInSchema.parse({ email, password })
 
-    const userObtained = await this.userRepository.getUserByEmail(email)
+    const beneficiaryObtained = await this.beneficiaryRepository.getBeneficiaryByEmail(email)
 
-    const isPasswordMatch = await bcrypt.compare(password, userObtained.password)
+    if (!beneficiaryObtained.user.password) {
+      throw new InternalServerError('no password founded')
+    }
+
+    const isPasswordMatch = await bcrypt.compare(password, beneficiaryObtained.user.password)
     if (!isPasswordMatch) {
       throw new UnauthorizedError()
     }
 
-    const accessToken = await createJWT({ sub: userObtained.id }, TokenType.ACCESS)
-    const refreshToken = await createJWT({ sub: userObtained.id }, TokenType.REFRESH)
+    const accessToken = await createJWT({ sub: beneficiaryObtained.user.id }, TokenType.ACCESS)
+    const refreshToken = await createJWT({ sub: beneficiaryObtained.user.id }, TokenType.REFRESH)
 
-    const tokenType = await this.authRepository.getTokenTypeIdByKey('refresh')
-    const newToken = new TokenValue(refreshToken, userObtained.id, tokenType.id)
+    const tokenType = await this.authRepository.getTokenTypeIdByKey(tokenTypes.REFRESH)
+    const newToken = new TokenValue(refreshToken, beneficiaryObtained.user.id, tokenType.id)
     await this.authRepository.saveToken(newToken)
 
-    const authValue = new DTOAuthResponse({
+    const authValue = new DTOBeneficiaryAuthResponse({
       accessToken,
       refreshToken,
-      user: userObtained
+      beneficiary: beneficiaryObtained
     })
 
     return authValue
   }
 
   /**
-   * @function signUp
-   * @description Sign up a user.
-   * @param name - The name of the user.
-   * @param email - The email of the user.
-   * @param password - The password of the user.
-   * @returns {Promise<DTOAuthResponse>} A promise that resolves to the DTOAuthResponse.
+   * @function signInDonar
+   * @description Sign in donar a user.
+   * @param email - Email of user.
+   * @param password - Password of user.
+   * @returns {Promise<DTODonarAuthResponse>} A promise that resolves to the DTODonarAuthResponse.
+   * @throws {UnauthorizedError} If the email or password is incorrect.
+   * @example
+   * ```ts
+   * const email = 'test@email.com'
+   * const password = '12345678'
+   * const authData = await authUseCase.signInDonar(email, password)
+   * ```
+  */
+  public async signInDonar(email: string, password: string): Promise<DTODonarAuthResponse> {
+    signInSchema.parse({ email, password })
+
+    const donarObtained = await this.donarRepository.getDonarByEmail(email)
+
+    if (!donarObtained.user.password) {
+      throw new InternalServerError('no password founded')
+    }
+
+    const isPasswordMatch = await bcrypt.compare(password, donarObtained.user.password)
+    if (!isPasswordMatch) {
+      throw new UnauthorizedError()
+    }
+
+    const accessToken = await createJWT({ sub: donarObtained.user.id }, TokenType.ACCESS)
+    const refreshToken = await createJWT({ sub: donarObtained.user.id }, TokenType.REFRESH)
+
+    const tokenType = await this.authRepository.getTokenTypeIdByKey(tokenTypes.REFRESH)
+    const newToken = new TokenValue(refreshToken, donarObtained.user.id, tokenType.id)
+    await this.authRepository.saveToken(newToken)
+
+    const authValue = new DTODonarAuthResponse({
+      accessToken,
+      refreshToken,
+      donar: donarObtained
+    })
+
+    return authValue
+  }
+
+  /**
+   * @function signUpBeneficiary
+   * @description Sign up a beneficiary.
+   * @param name - The name of the beneficiary.
+   * @param email - The email of the beneficiary.
+   * @param password - The password of the beneficiary.
+   * @returns {Promise<DTOBeneficiaryAuthResponse>} A promise that resolves to the DTOBeneficiaryAuthResponse.
    * @example
    * ```ts
    * const name = 'test'
+   * const lastName1 = 'lastName1'
+   * const lastName2 = 'lastName2'
    * const email = 'test@email.com'
    * const password = '12345678'
-   * const authData = await authUseCase.signUp(name, email, password)
+   * const authData = await authUseCase.signsignUpBeneficiaryUp(name, lastName1, lastName2, email, password)
    * ```
   */
-  public async signUp(user: DTOUserCreate): Promise<DTOAuthResponse> {
+  public async signUpBeneficiary(user: DTOUserCreate): Promise<DTOBeneficiaryAuthResponse> {
     createUserSchema.parse(user)
 
-    const newUser = new UserValue(user.name, user.email, user.password)
-    const userCreated = await this.userRepository.createUser(newUser)
+    const newUser = new UserValue(user.name, user.lastName1, user.email, user.password, user.lastName2)
+    const newBeneficiary = new BeneficiaryValue(newUser)
+    const beneficiaryCreated = await this.beneficiaryRepository.createBeneficiary(newBeneficiary)
 
-    const accessToken = await createJWT({ sub: userCreated.id }, TokenType.ACCESS)
-    const refreshToken = await createJWT({ sub: userCreated.id }, TokenType.REFRESH)
+    const accessToken = await createJWT({ sub: beneficiaryCreated.user.id }, TokenType.ACCESS)
+    const refreshToken = await createJWT({ sub: beneficiaryCreated.user.id }, TokenType.REFRESH)
 
-    const tokenType = await this.authRepository.getTokenTypeIdByKey('refresh')
-    const newToken = new TokenValue(refreshToken, userCreated.id, tokenType.id)
+    const tokenType = await this.authRepository.getTokenTypeIdByKey(tokenTypes.REFRESH)
+    const newToken = new TokenValue(refreshToken, beneficiaryCreated.user.id, tokenType.id)
     await this.authRepository.saveToken(newToken)
 
-    const authValue = new DTOAuthResponse({
+    const authValue = new DTOBeneficiaryAuthResponse({
       accessToken,
       refreshToken,
-      user: userCreated
+      beneficiary: beneficiaryCreated
+    })
+
+    return authValue
+  }
+
+  /**
+   * @function signUpDonar
+   * @description Sign up a donar.
+   * @param name - The name of the donar.
+   * @param email - The email of the donar.
+   * @param password - The password of the donar.
+   * @returns {Promise<DTODonarAuthResponse>} A promise that resolves to the DTODonarAuthResponse.
+   * @example
+   * ```ts
+   * const name = 'test'
+   * const lastName1 = 'lastName1'
+   * const lastName2 = 'lastName2'
+   * const email = 'test@email.com'
+   * const password = '12345678'
+   * const authData = await authUseCase.signsignUpDonarUp(name, lastName1, lastName2, email, password)
+   * ```
+  */
+  public async signUpDonar(user: DTOUserCreate): Promise<DTODonarAuthResponse> {
+    createUserSchema.parse(user)
+
+    const newUser = new UserValue(user.name, user.lastName1, user.email, user.password, user.lastName2)
+    const newDonar = new DonarValue(newUser)
+    const donarCreated = await this.donarRepository.createDonar(newDonar)
+
+    const accessToken = await createJWT({ sub: donarCreated.user.id }, TokenType.ACCESS)
+    const refreshToken = await createJWT({ sub: donarCreated.user.id }, TokenType.REFRESH)
+
+    const tokenType = await this.authRepository.getTokenTypeIdByKey(tokenTypes.REFRESH)
+    const newToken = new TokenValue(refreshToken, donarCreated.user.id, tokenType.id)
+    await this.authRepository.saveToken(newToken)
+
+    const authValue = new DTODonarAuthResponse({
+      accessToken,
+      refreshToken,
+      donar: donarCreated
     })
 
     return authValue
@@ -137,26 +243,24 @@ export class AuthUseCase {
   /**
    * @function signOut
    * @description Sign out a user.
-   * @param userId - The id of the user.
    * @param refreshToken - The refresh token of the user.
    * @returns {Promise<void>} A promise that resolves to the void.
    * @throws {UnauthorizedError} If the refresh token is invalid.
    * @example
    * ```ts
-   * const userId = '938d6f5b-b4a6-4669-a514-ddb3a23621fc'
    * const refreshToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3ZDgwNzQwNi1hNTQzLTRlMWYtYjAxOS1jOGIwNWQ1OGM1OWIiLCJpYXQiOjE3MjQ2MzExMjksImV4cCI6MTcyNTkyNzEyOX0.l7WXdoTopPRqeK-TNIgJtCoR863Yot5cJC-jV3v6DwJtrvH9wjqGFPHpgo00z4d9jCbMTEBnUfv2NkFCk4ecPt4YTledruAuxQoULk3NqoaXhn4wlKhQj7w14ngldir_pud4SxXJnfaw_zd1xg6Gd7rDH-LAWUYaNyvs8qt2CRra7pnBA6tBUvrO58HYReJRQU-GQP9PWRmRC4G8H3tpnGEybn4NcNCn-rO-PIgABZ1I3Len1y8ibKMrz53Rc1PTUTInD96RORM5zp5c06qkyUjW9AThFQwmYP9Yzo4z3fBsuvqQFha31lWoqzP5LNk2iOHECuequuLPThtNWdsRyw'
-   * await authUseCase.signOut(userId, refreshToken)
+   * await authUseCase.signOut(refreshToken)
    * ```
   */
-  public async signOut(userId: string, refreshToken: string): Promise<void> {
-    signOutSchema.parse({ userId, refreshToken })
+  public async signOut(refreshToken: string): Promise<void> {
+    signOutSchema.parse({ refreshToken })
 
     const payload = await verifyJWT(refreshToken, TokenType.REFRESH)
     if (!payload) {
       throw new UnauthorizedError()
     }
 
-    await this.authRepository.revokeTokenByUserIdAndValue(payload.sub as string, refreshToken)
+    await this.authRepository.revokeTokenByValue(refreshToken)
   }
 
   /**
@@ -179,17 +283,17 @@ export class AuthUseCase {
       throw new UnauthorizedError()
     }
 
-    await this.authRepository.getTokenByUserIdAndValue(payload.sub as string, rToken)
+    await this.authRepository.getTokenByValue(rToken)
 
     const accessToken = await createJWT({ sub: payload.sub }, TokenType.ACCESS)
 
     let refreshToken = undefined
     if (this.shouldRefreshTheRefreshToken(payload)) {
-      await this.authRepository.revokeTokenByUserIdAndValue(payload.sub as string, rToken)
+      await this.authRepository.revokeTokenByValue(rToken)
 
       refreshToken = await createJWT({ sub: payload.sub }, TokenType.REFRESH)
 
-      const tokenType = await this.authRepository.getTokenTypeIdByKey('refresh')
+      const tokenType = await this.authRepository.getTokenTypeIdByKey(tokenTypes.REFRESH)
       const newToken = new TokenValue(refreshToken, payload.sub as string, tokenType.id)
       await this.authRepository.saveToken(newToken)
     }

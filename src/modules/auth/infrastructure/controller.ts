@@ -37,22 +37,22 @@ export class AuthController {
   }
 
   /**
-   * Handles the request to sign in a user.
+   * Handles the request to sign in a beneficiary.
    * 
    * @param {Request} req - The Express request object, containing the sign in data.
-   * @param {Response} res - The Express response object, used to send the user data.
+   * @param {Response} res - The Express response object, used to send the beneficiary data.
    * @param {NextFunction} next - The Express next function, used to pass errors to the error handler.
    * @returns {Promise<void>} A promise that resolves to void.
    * @example
    * ```ts
    * const router = Router()
-   * router.post('/sign-in', controller.signIn)
+   * router.post('/sign-in/beneficiary', controller.signInBeneficiary)
    * ```
   */
-  public signIn = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public signInBeneficiary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const user = req.body
-      const authData = await this.useCase.signIn(user.email, user.password)
+      const beneficiary = req.body
+      const authData = await this.useCase.signInBeneficiary(beneficiary.email, beneficiary.password)
 
       // Both cookies are with the same expiration time because if the access token expires, the refresh token will be used to generate a new one. 
       res.cookie(cookieNames.ACCESS_TOKEN, authData.accessToken, {
@@ -70,7 +70,7 @@ export class AuthController {
       })
 
       res.sendSuccess({ status: 200, message: 'success', data: {
-        user: authData.user
+        beneficiary: authData.beneficiary
       }, meta: null })
     } catch (error) {
       next(error)
@@ -78,22 +78,63 @@ export class AuthController {
   }
 
   /**
-   * Handles the request to sign up a user.
+   * Handles the request to sign in a donar.
    * 
-   * @param {Request} req - The Express request object, containing the sign up data.
-   * @param {Response} res - The Express response object, used to send the user data.
+   * @param {Request} req - The Express request object, containing the sign in data.
+   * @param {Response} res - The Express response object, used to send the donar data.
    * @param {NextFunction} next - The Express next function, used to pass errors to the error handler.
    * @returns {Promise<void>} A promise that resolves to void.
    * @example
    * ```ts
    * const router = Router()
-   * router.post('/sign-up', controller.signUp)
+   * router.post('/sign-in/donar', controller.signInDonar)
    * ```
   */
-  public signUp = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public signInDonar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const user = req.body
-      const authData = await this.useCase.signUp(user)
+      const donar = req.body
+      const authData = await this.useCase.signInDonar(donar.email, donar.password)
+
+      // Both cookies are with the same expiration time because if the access token expires, the refresh token will be used to generate a new one. 
+      res.cookie(cookieNames.ACCESS_TOKEN, authData.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        maxAge: durationToMilliseconds(tokenExpiration[TokenType.REFRESH])
+      })
+
+      res.cookie(cookieNames.REFRESH_TOKEN, authData.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        maxAge: durationToMilliseconds(tokenExpiration[TokenType.REFRESH])
+      })
+
+      res.sendSuccess({ status: 200, message: 'success', data: {
+        donar: authData.donar
+      }, meta: null })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  /**
+   * Handles the request to sign up a beneficiary.
+   * 
+   * @param {Request} req - The Express request object, containing the sign up data.
+   * @param {Response} res - The Express response object, used to send the beneficiary data.
+   * @param {NextFunction} next - The Express next function, used to pass errors to the error handler.
+   * @returns {Promise<void>} A promise that resolves to void.
+   * @example
+   * ```ts
+   * const router = Router()
+   * router.post('/sign-up', controller.signUpBeneficiary)
+   * ```
+  */
+  public signUpBeneficiary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const beneficiary = req.body
+      const authData = await this.useCase.signUpBeneficiary(beneficiary)
 
       // Both cookies are with the same expiration time because if the access token expires, the refresh token will be used to generate a new one. 
       res.cookie(cookieNames.ACCESS_TOKEN, authData.accessToken, {
@@ -111,7 +152,48 @@ export class AuthController {
       })
 
       res.sendSuccess({ status: 201, message: 'success', data: {
-        user: authData.user
+        beneficiary: authData.beneficiary
+      }, meta: null })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  /**
+   * Handles the request to sign up a donar.
+   * 
+   * @param {Request} req - The Express request object, containing the sign up data.
+   * @param {Response} res - The Express response object, used to send the donar data.
+   * @param {NextFunction} next - The Express next function, used to pass errors to the error handler.
+   * @returns {Promise<void>} A promise that resolves to void.
+   * @example
+   * ```ts
+   * const router = Router()
+   * router.post('/sign-up', controller.signUpDonar)
+   * ```
+  */
+  public signUpDonar = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const donar = req.body
+      const authData = await this.useCase.signUpDonar(donar)
+
+      // Both cookies are with the same expiration time because if the access token expires, the refresh token will be used to generate a new one. 
+      res.cookie(cookieNames.ACCESS_TOKEN, authData.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        maxAge: durationToMilliseconds(tokenExpiration[TokenType.REFRESH])
+      })
+
+      res.cookie(cookieNames.REFRESH_TOKEN, authData.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        maxAge: durationToMilliseconds(tokenExpiration[TokenType.REFRESH])
+      })
+
+      res.sendSuccess({ status: 201, message: 'success', data: {
+        donar: authData.donar
       }, meta: null })
     } catch (error) {
       next(error)
@@ -137,7 +219,7 @@ export class AuthController {
       if (!userId) {
         throw new UnauthorizedError()
       }
-      await this.useCase.signOut(userId, req.cookies[cookieNames.REFRESH_TOKEN])
+      await this.useCase.signOut(req.cookies[cookieNames.REFRESH_TOKEN])
 
       res.clearCookie(cookieNames.ACCESS_TOKEN)
       res.clearCookie(cookieNames.REFRESH_TOKEN)

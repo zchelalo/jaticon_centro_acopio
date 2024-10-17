@@ -22,7 +22,6 @@ export const signInSchema = z.object({
  * @param {string} refreshToken - The refresh token of the user, must be a string.
  */
 export const signOutSchema = z.object({
-  userId: z.string().uuid(),
   refreshToken: z.string()
 })
 

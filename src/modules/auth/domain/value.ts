@@ -1,23 +1,24 @@
-import { UserEntity } from 'src/modules/user/domain/entity'
-import { AuthEntity } from './entity'
+import { BeneficiaryAuthEntity, DonarAuthEntity } from './entity'
 
 import { v4 } from 'uuid'
+import { BeneficiaryEntity } from 'src/modules/beneficiary/domain/entity'
+import { DonarEntity } from 'src/modules/donar/domain/entity'
 
 /**
- * AuthValue class.
+ * BeneficiaryAuthValue class.
  * 
  * This class implements the AuthEntity interface and represents a value object for a Auth object.
  * 
- * @implements {UserEntity}
+ * @implements {BeneficiaryAuthEntity}
  * @example
  * ```ts
  * const accessToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3ZDgwNzQwNi1hNTQzLTRlMWYtYjAxOS1jOGIwNWQ1OGM1OWIiLCJpYXQiOjE3MjQ2MzExMjksImV4cCI6MTcyNTkyNzEyOX0.l7WXdoTopPRqeK-TNIgJtCoR863Yot5cJC-jV3v6DwJtrvH9wjqGFPHpgo00z4d9jCbMTEBnUfv2NkFCk4ecPt4YTledruAuxQoULk3NqoaXhn4wlKhQj7w14ngldir_pud4SxXJnfaw_zd1xg6Gd7rDH-LAWUYaNyvs8qt2CRra7pnBA6tBUvrO58HYReJRQU-GQP9PWRmRC4G8H3tpnGEybn4NcNCn-rO-PIgABZ1I3Len1y8ibKMrz53Rc1PTUTInD96RORM5zp5c06qkyUjW9AThFQwmYP9Yzo4z3fBsuvqQFha31lWoqzP5LNk2iOHECuequuLPThtNWdsRyw'
  * const refreshToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3ZDgwNzQwNi1hNTQzLTRlMWYtYjAxOS1jOGIwNWQ1OGM1OWIiLCJpYXQiOjE3MjQ2MzExMjksImV4cCI6MTcyNTkyNzEyOX0.l7WXdoTopPRqeK-TNIgJtCoR863Yot5cJC-jV3v6DwJtrvH9wjqGFPHpgo00z4d9jCbMTEBnUfv2NkFCk4ecPt4YTledruAuxQoULk3NqoaXhn4wlKhQj7w14ngldir_pud4SxXJnfaw_zd1xg6Gd7rDH-LAWUYaNyvs8qt2CRra7pnBA6tBUvrO58HYReJRQU-GQP9PWRmRC4G8H3tpnGEybn4NcNCn-rO-PIgABZ1I3Len1y8ibKMrz53Rc1PTUTInD96RORM5zp5c06qkyUjW9AThFQwmYP9Yzo4z3fBsuvqQFha31lWoqzP5LNk2iOHECuequuLPThtNWdsRyw'
- * const user = new UserValue('name', 'email', 'password')
- * const auth = new AuthValue(accessToken, refreshToken, user)
+ * const beneficiary = new UserValue('name', 'lastName1', 'lastName2', 'email', 'password')
+ * const auth = new BeneficiaryAuthValue(accessToken, refreshToken, beneficiary)
  * ```
 */
-export class AuthValue implements AuthEntity {
+export class BeneficiaryAuthValue implements BeneficiaryAuthEntity {
   /**
    * The access token of the user.
    * @type {string}
@@ -31,22 +32,69 @@ export class AuthValue implements AuthEntity {
   readonly refreshToken: string
 
   /**
-   * The information of the user.
-   * @type {UserEntity}
+   * The information of the beneficiary.
+   * @type {BeneficiaryEntity}
   */
-  readonly user: UserEntity
+  readonly beneficiary: BeneficiaryEntity
 
   /**
    * Creates a new AuthValue instance.
    * 
    * @param {string} accessToken - The access token of the user.
    * @param {string} refreshToken - The refresh token of the user.
-   * @param {UserEntity} user - The information of the user.
+   * @param {BeneficiaryEntity} beneficiary - The information of the beneficiary.
   */
-  constructor(accessToken: string, refreshToken: string, user: UserEntity) {
+  constructor(accessToken: string, refreshToken: string, beneficiary: BeneficiaryEntity) {
     this.accessToken = accessToken
     this.refreshToken = refreshToken
-    this.user = user
+    this.beneficiary = beneficiary
+  }
+}
+
+/**
+ * DonarAuthValue class.
+ * 
+ * This class implements the AuthEntity interface and represents a value object for a Auth object.
+ * 
+ * @implements {DonarAuthEntity}
+ * @example
+ * ```ts
+ * const accessToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3ZDgwNzQwNi1hNTQzLTRlMWYtYjAxOS1jOGIwNWQ1OGM1OWIiLCJpYXQiOjE3MjQ2MzExMjksImV4cCI6MTcyNTkyNzEyOX0.l7WXdoTopPRqeK-TNIgJtCoR863Yot5cJC-jV3v6DwJtrvH9wjqGFPHpgo00z4d9jCbMTEBnUfv2NkFCk4ecPt4YTledruAuxQoULk3NqoaXhn4wlKhQj7w14ngldir_pud4SxXJnfaw_zd1xg6Gd7rDH-LAWUYaNyvs8qt2CRra7pnBA6tBUvrO58HYReJRQU-GQP9PWRmRC4G8H3tpnGEybn4NcNCn-rO-PIgABZ1I3Len1y8ibKMrz53Rc1PTUTInD96RORM5zp5c06qkyUjW9AThFQwmYP9Yzo4z3fBsuvqQFha31lWoqzP5LNk2iOHECuequuLPThtNWdsRyw'
+ * const refreshToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3ZDgwNzQwNi1hNTQzLTRlMWYtYjAxOS1jOGIwNWQ1OGM1OWIiLCJpYXQiOjE3MjQ2MzExMjksImV4cCI6MTcyNTkyNzEyOX0.l7WXdoTopPRqeK-TNIgJtCoR863Yot5cJC-jV3v6DwJtrvH9wjqGFPHpgo00z4d9jCbMTEBnUfv2NkFCk4ecPt4YTledruAuxQoULk3NqoaXhn4wlKhQj7w14ngldir_pud4SxXJnfaw_zd1xg6Gd7rDH-LAWUYaNyvs8qt2CRra7pnBA6tBUvrO58HYReJRQU-GQP9PWRmRC4G8H3tpnGEybn4NcNCn-rO-PIgABZ1I3Len1y8ibKMrz53Rc1PTUTInD96RORM5zp5c06qkyUjW9AThFQwmYP9Yzo4z3fBsuvqQFha31lWoqzP5LNk2iOHECuequuLPThtNWdsRyw'
+ * const donar = new UserValue('name', 'lastName1', 'lastName2', 'email', 'password')
+ * const auth = new DonarAuthValue(accessToken, refreshToken, donar)
+ * ```
+*/
+export class DonarAuthValue implements DonarAuthEntity {
+  /**
+   * The access token of the user.
+   * @type {string}
+  */
+  readonly accessToken: string
+
+  /**
+   * The refresh token of the user.
+   * @type {string}
+  */
+  readonly refreshToken: string
+
+  /**
+   * The information of the donar.
+   * @type {DonarEntity}
+  */
+  readonly donar: DonarEntity
+
+  /**
+   * Creates a new AuthValue instance.
+   * 
+   * @param {string} accessToken - The access token of the user.
+   * @param {string} refreshToken - The refresh token of the user.
+   * @param {DonarEntity} donar - The information of the donar.
+  */
+  constructor(accessToken: string, refreshToken: string, donar: DonarEntity) {
+    this.accessToken = accessToken
+    this.refreshToken = refreshToken
+    this.donar = donar
   }
 }
 
