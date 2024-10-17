@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Creating pem files for access, refresh, recover and verify keys"
+
 openssl genrsa -out ./certs/private_access.pem 2048
 openssl rsa -in ./certs/private_access.pem -pubout -out ./certs/public_access.pem
 

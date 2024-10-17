@@ -2,8 +2,8 @@ version: "3.1"
 
 services:
 
-  app:
-    container_name: app
+  jcc_app:
+    container_name: jcc_app
     restart: unless-stopped
     env_file: ../.env
     build:
@@ -13,13 +13,16 @@ services:
       - 8000:8000
     volumes:
       - ../src:/app/src
+    depends_on:
+      jcc_db:
+        condition: service_started
 
-  app_db:
+  jcc_db:
     image: postgres:15.2
-    container_name: app_db
+    container_name: jcc_db
     environment:
       POSTGRES_PASSWORD: example
-      POSTGRES_DB: app
+      POSTGRES_DB: jcc
       TZ: America/Hermosillo
     volumes:
       - ../DB/postgresql:/var/lib/postgresql/data
@@ -31,14 +34,14 @@ services:
       timeout: 5s
       retries: 5
 
-  app_adminer:
+  jcc_adminer:
     image: adminer
-    container_name: app_adminer
+    container_name: jcc_adminer
     environment:
       TZ: America/Hermosillo
       ADMINER_DESIGN: "ng9"
     ports:
       - 8080:8080
     depends_on:
-      app_db:
+      jcc_db:
         condition: service_started
