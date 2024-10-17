@@ -11,6 +11,8 @@ import { z } from 'zod'
  */
 export const createUserSchema = z.object({
   name: z.string().min(3),
+  lastName1: z.string().min(3),
+  lastName2: z.string().min(3).nullable().optional(),
   email: z.string().email({ message: 'Invalid email' }),
   password: z.string().min(8)
 })
@@ -42,10 +44,10 @@ export const getUserByEmailSchema = z.object({
  * 
  * Represents the validation schema for get the pagination to get Users.
  * 
- * @param {number} offset - The offset of the pagination, must be a valid positive integer.
+ * @param {number} page - The page of the pagination, must be a valid integer greater than zero.
  * @param {number} limit - The limit of the pagination, must be a valid integer greater than zero.
  */
 export const paginationSchema = z.object({
-  offset: z.number().int().min(0),
+  page: z.number().int().min(1),
   limit: z.number().int().min(1)
 })

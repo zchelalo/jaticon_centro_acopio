@@ -3,7 +3,7 @@ import { UserRepository } from '../../domain/repository'
 import { db } from 'src/data/drizzle/config/orm'
 import { user } from 'src/data/drizzle/schemas'
 import { count, desc, eq } from 'drizzle-orm'
-import { ConflictError, DatabaseError, NotFoundError } from 'src/helpers/errors/custom_error'
+import { BadRequestError, ConflictError, DatabaseError, NotFoundError } from 'src/helpers/errors/custom_error'
 
 /**
  * PostgresRepository class.
@@ -25,8 +25,9 @@ export class PostgresRepository implements UserRepository {
       .select({
         id: user.id,
         name: user.name,
-        email: user.email,
-        password: user.password
+        lastName1: user.lastName1,
+        lastName2: user.lastName2,
+        email: user.email
       })
       .from(user)
       .where(eq(user.id, id))
@@ -35,7 +36,13 @@ export class PostgresRepository implements UserRepository {
     if (userObtained.length === 0) {
       throw new NotFoundError(`user with id '${id}'`)
     }
-    return userObtained[0]
+    return {
+      id: userObtained[0].id,
+      name: userObtained[0].name,
+      lastName1: userObtained[0].lastName1,
+      lastName2: userObtained[0].lastName2 || undefined,
+      email: userObtained[0].email
+    }
   }
 
   /**
@@ -50,6 +57,8 @@ export class PostgresRepository implements UserRepository {
       .select({
         id: user.id,
         name: user.name,
+        lastName1: user.lastName1,
+        lastName2: user.lastName2,
         email: user.email,
         password: user.password
       })
@@ -60,7 +69,14 @@ export class PostgresRepository implements UserRepository {
     if (userObtained.length === 0) {
       throw new NotFoundError(`user with email '${email}'`)
     }
-    return userObtained[0]
+    return {
+      id: userObtained[0].id,
+      name: userObtained[0].name,
+      lastName1: userObtained[0].lastName1,
+      lastName2: userObtained[0].lastName2 || undefined,
+      email: userObtained[0].email,
+      password: userObtained[0].password
+    }
   }
 
   /**
@@ -76,8 +92,9 @@ export class PostgresRepository implements UserRepository {
       .select({
         id: user.id,
         name: user.name,
-        email: user.email,
-        password: user.password
+        lastName1: user.lastName1,
+        lastName2: user.lastName2,
+        email: user.email
       })
       .from(user)
       .offset(offset)
@@ -87,8 +104,13 @@ export class PostgresRepository implements UserRepository {
     if (usersObtained.length === 0) {
       throw new NotFoundError('users')
     }
-    return usersObtained
-
+    return usersObtained.map(user => ({
+      id: user.id,
+      name: user.name,
+      lastName1: user.lastName1,
+      lastName2: user.lastName2 || undefined,
+      email: user.email
+    }))
   }
 
   /**
@@ -113,6 +135,7 @@ export class PostgresRepository implements UserRepository {
    * @returns {Promise<UserEntity>} A promise that resolves with the created user entity.
    * @throws {ConflictError} If a user with the given email already exists.
    * @throws {DatabaseError} If the user could not be created.
+   * @throws {BadRequestError} If the password is missing.
   */
   async createUser(userData: UserEntity): Promise<UserEntity> {
     const userObtained = await db
@@ -127,16 +150,34 @@ export class PostgresRepository implements UserRepository {
       throw new ConflictError(`email already exists`)
     }
 
-    const userCreated = await db
-      .insert(user)
-      .values(userData)
-      .returning({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        password: user.password
-      })
+    if (userData.password) {
+      const userCreated = await db
+        .insert(user)
+        .values({
+          id: userData.id,
+          name: userData.name,
+          lastName1: userData.lastName1,
+          lastName2: userData.lastName2,
+          email: userData.email,
+          password: userData.password
+        })
+        .returning({
+          id: user.id,
+          name: user.name,
+          lastName1: user.lastName1,
+          lastName2: user.lastName2,
+          email: user.email
+        })
 
-    return userCreated[0]
+      return {
+        id: userCreated[0].id,
+        name: userCreated[0].name,
+        lastName1: userCreated[0].lastName1,
+        lastName2: userCreated[0].lastName2 || undefined,
+        email: userCreated[0].email
+      }
+    }
+
+    throw new BadRequestError('password is required')
   }
 }

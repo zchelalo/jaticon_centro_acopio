@@ -1,4 +1,4 @@
-import { UserValue } from '../../domain/value'
+import { UserEntity } from '../../domain/entity'
 
 /**
  * Data Transfer Object for User Response.
@@ -17,6 +17,16 @@ export class DTOUserResponse {
   name: string
 
   /**
+   * The first last name of the user.
+  */
+  lastName1: string
+
+  /**
+   * The second last name of the user.
+  */
+  lastName2?: string
+
+  /**
    * The email address of the user.
   */
   email: string
@@ -26,9 +36,11 @@ export class DTOUserResponse {
    * 
    * @param {UserValue} user - The user value object from the domain layer.
   */
-  constructor({ id, name, email }: UserValue) {
+  constructor({ id, name, lastName1, lastName2, email }: UserEntity) {
     this.id = id
     this.name = name
+    this.lastName1 = lastName1
+    this.lastName2 = lastName2
     this.email = email
   }
 }

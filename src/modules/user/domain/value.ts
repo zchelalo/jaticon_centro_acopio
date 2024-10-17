@@ -22,6 +22,18 @@ export class UserValue implements UserEntity {
   readonly name: string
 
   /**
+   * The first last name of the user.
+   * @type {string}
+  */
+  readonly lastName1: string
+
+  /**
+   * The second last name of the user.
+   * @type {string}
+  */
+  readonly lastName2?: string
+
+  /**
    * The email address of the user.
    * @type {string}
   */
@@ -37,12 +49,16 @@ export class UserValue implements UserEntity {
    * Creates a new UserValue instance.
    * 
    * @param {string} name - The name of the user.
+   * @param {string} lastName1 - The first last name of the user.
+   * @param {string} lastName2 - The second last name of the user.
    * @param {string} email - The email address of the user.
    * @param {string} password - The password of the user.
   */
-  constructor(name: string, email: string, password: string) {
+  constructor(name: string, lastName1: string, email: string, password: string, lastName2?: string) {
     this.id = uuid()
     this.name = name
+    this.lastName1 = lastName1
+    this.lastName2 = lastName2
     this.email = email
     this.password = password
   }

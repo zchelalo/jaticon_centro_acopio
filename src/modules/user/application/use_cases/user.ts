@@ -132,7 +132,7 @@ export class UserUseCase {
 
     const password = await bcrypt.hash(user.password, 10)
     user.password = password
-    const userValue = new UserValue(user.name, user.email, user.password)
+    const userValue = new UserValue(user.name, user.lastName1, user.email, user.password, user.lastName2)
     await this.userRepository.createUser(userValue)
     return new DTOUserResponse(userValue)
   }

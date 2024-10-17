@@ -20,6 +20,18 @@ export interface UserEntity {
   name: string
 
   /**
+   * The first last name of the user.
+   * @type {string}
+  */
+  lastName1: string
+
+  /**
+   * The second last name of the user.
+   * @type {string}
+  */
+  lastName2?: string
+
+  /**
    * The email address of the user.
    * @type {string}
   */
@@ -29,5 +41,5 @@ export interface UserEntity {
    * The password of the user, stored as a hashed string.
    * @type {string}
   */
-  password: string
+  password?: string
 }
