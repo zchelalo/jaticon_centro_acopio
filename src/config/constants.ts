@@ -132,3 +132,15 @@ export enum requestStatus {
    */
   CANCELLED = 'cancelada'
 }
+
+export enum userTypes {
+  /**
+   * The type of user that is a donor.
+   */
+  DONOR = 'donante',
+
+  /**
+   * The type of user that is a beneficiary.
+   */
+  BENEFICIARY = 'beneficiario'
+}
