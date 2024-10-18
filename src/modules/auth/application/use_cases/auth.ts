@@ -180,7 +180,9 @@ export class AuthUseCase {
   public async signUpBeneficiary(user: DTOUserCreate): Promise<DTOBeneficiaryAuthResponse> {
     createUserSchema.parse(user)
 
-    const newUser = new UserValue(user.name, user.lastName1, user.email, user.password, user.lastName2)
+    const hashedPassword = await bcrypt.hash(user.password, 10)
+
+    const newUser = new UserValue(user.name, user.lastName1, user.email, hashedPassword, user.lastName2)
     const newBeneficiary = new BeneficiaryValue(newUser)
     const beneficiaryCreated = await this.beneficiaryRepository.createBeneficiary(newBeneficiary)
 
@@ -220,7 +222,9 @@ export class AuthUseCase {
   public async signUpDonar(user: DTOUserCreate): Promise<DTODonarAuthResponse> {
     createUserSchema.parse(user)
 
-    const newUser = new UserValue(user.name, user.lastName1, user.email, user.password, user.lastName2)
+    const hashedPassword = await bcrypt.hash(user.password, 10)
+
+    const newUser = new UserValue(user.name, user.lastName1, user.email, hashedPassword, user.lastName2)
     const newDonar = new DonarValue(newUser)
     const donarCreated = await this.donarRepository.createDonar(newDonar)
 
