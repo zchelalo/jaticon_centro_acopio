@@ -6,13 +6,15 @@ import { responseMiddleware } from './middlewares/response'
 import { logRequestMiddleware } from './middlewares/log_request'
 import { logErrors, unknownErrorHandler, customErrorHandler } from './middlewares/error'
 
-import { router as userRouter } from './modules/user/infrastructure/router'
 import { router as authRouter } from './modules/auth/infrastructure/router'
+import { router as donationRouter } from './modules/donation/infrastructure/router'
 
 import { ForbiddenError } from './helpers/errors/custom_error'
 
 import { serve, setup } from 'swagger-ui-express'
 import { swaggerSpec } from './config/swagger'
+
+import { uploadDir } from './config/multer'
 
 const app = express()
 
@@ -33,8 +35,10 @@ app.use(cors({
   credentials: true
 }))
 
-app.use('/api', userRouter)
+app.use('/uploads', express.static(uploadDir))
+
 app.use('/api', authRouter)
+app.use('/api', donationRouter)
 
 app.use('/docs', serve, setup(swaggerSpec))
 

@@ -8,24 +8,21 @@
     "create:envs": "bash ./scripts/create_envs.sh",
     "create:certs": "bash ./scripts/create_certs.sh",
     "create:docs": "typedoc --entryPointStrategy expand ./src --name 'App' --out docs",
-
     "compose": "docker compose -f ./.dockers/docker-compose.yml up",
     "compose:build": "docker compose -f ./.dockers/docker-compose.yml up --build",
     "compose:down": "docker compose -f ./.dockers/docker-compose.yml down",
-
     "migration:generate": "docker exec -it jcc_app npx drizzle-kit generate --config=./src/data/drizzle/config/drizzle_kit.ts",
     "migration:push": "docker exec -it jcc_app npx tsx ./src/data/drizzle/config/migrate.ts",
     "migration:seed": "docker exec -it jcc_app npx tsx ./src/data/drizzle/config/seed.ts",
     "migrate": "npm run migration:generate && npm run migration:push",
-
     "test": "NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles || true",
-
     "dev": "nodemon"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/multer": "^1.4.12",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -33,6 +30,7 @@
     "drizzle-orm": "^0.33.0",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
     "pg": "^8.12.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",

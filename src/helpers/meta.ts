@@ -52,17 +52,17 @@ export class Meta {
    * @param {NewMeta} newMeta - The new meta object.
   */
   constructor({ page, perPage, total, pagLimitDef }: NewMeta) {
-    this.page = page
     this.totalCount = total
-  
     this.perPage = perPage > 0 ? perPage : pagLimitDef
   
-    this.pageCount = total >= 0 ? Math.ceil(total / this.perPage) : 0
+    this.pageCount = total > 0 ? Math.ceil(total / this.perPage) : 1
   
-    if (this.page < 1) {
+    if (page < 1) {
       this.page = 1
-    } else if (this.page > this.pageCount) {
+    } else if (page > this.pageCount) {
       this.page = this.pageCount
+    } else {
+      this.page = page
     }
   }
 

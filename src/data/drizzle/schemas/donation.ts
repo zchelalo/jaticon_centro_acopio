@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { pgTable, timestamp, uuid, text } from 'drizzle-orm/pg-core'
+import { pgTable, timestamp, uuid, text, varchar } from 'drizzle-orm/pg-core'
 import { donar } from './donar'
 import { category } from './category'
 import { collectionCenter } from './collection_center'
@@ -13,6 +13,7 @@ export const donation = pgTable('donations', {
   categoryId: uuid('category_id').notNull().references(() => category.id),
   collectionCenterId: uuid('collection_center_id').notNull().references(() => collectionCenter.id),
   donationStatusId: uuid('donation_status_id').notNull().references(() => donationStatus.id),
+  name: varchar('name', { length: 255 }).notNull(),
   description: text('description').notNull(),
   imageUrl: text('image_url').notNull(),
   deletedAt: timestamp('deleted_at'),

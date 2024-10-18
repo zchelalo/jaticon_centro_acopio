@@ -34,7 +34,7 @@ export class PostgresRepository implements DonarRepository {
       })
       .from(donar)
       .innerJoin(user, eq(donar.userId, user.id))
-      .where(eq(donar.id, id))
+      .where(eq(user.id, id))
       .limit(1)
 
     if (donarObtained.length === 0) {

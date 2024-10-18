@@ -33,8 +33,10 @@ import { DTOUserResponse } from 'src/modules/user/application/dtos/user_response
  * 
  * @example
  * ```ts
- * const userRepository = new UserPostgresRepository()
- * const authUseCase = new AuthUseCase(userRepository)
+ * const authRepository = new AuthPostgresRepository()
+ * const beneficiaryRepository = new BeneficiaryPostgresRepository()
+ * const donarRepository = new DonarPostgresRepository()
+ * const authUseCase = new AuthUseCase(authRepository, beneficiaryRepository, donarRepository)
  * ```
  */
 export class AuthUseCase {
