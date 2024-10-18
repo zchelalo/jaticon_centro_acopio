@@ -2,7 +2,7 @@ import { DonationEntity } from '../../domain/entity'
 import { DonationRepository } from '../../domain/repository'
 import { db } from 'src/data/drizzle/config/orm'
 import { category, collectionCenter, donar, donation, donationStatus, user } from 'src/data/drizzle/schemas'
-import { count, desc, eq, getTableColumns, like } from 'drizzle-orm'
+import { and, count, desc, eq, getTableColumns, like } from 'drizzle-orm'
 import { donationStatus as donationStatusEnum } from 'src/config/constants'
 import { NotFoundError } from 'src/helpers/errors/custom_error'
 
@@ -77,7 +77,23 @@ export class PostgresRepository implements DonationRepository {
     }
   }
 
-  async listDonations(offset: number, limit: number, name?: string, categoryId?: string, collectionCenterId?: string): Promise<DonationEntity[]> {
+  async listDonations(offset: number, limit: number, donationStatusId: string, name?: string, categoryId?: string, collectionCenterId?: string): Promise<DonationEntity[]> {
+      const conditions = [
+        eq(donation.donationStatusId, donationStatusId)
+      ]
+    
+      if (name) {
+        conditions.push(like(donation.name, `%${name}%`))
+      }
+    
+      if (categoryId) {
+        conditions.push(eq(donation.categoryId, categoryId))
+      }
+    
+      if (collectionCenterId) {
+        conditions.push(eq(donation.collectionCenterId, collectionCenterId))
+      }
+
     const donationsObtained = db
       .select({
         id: donation.id,
@@ -100,20 +116,12 @@ export class PostgresRepository implements DonationRepository {
       .innerJoin(user, eq(donar.userId, user.id))
       .innerJoin(collectionCenter, eq(donation.collectionCenterId, collectionCenter.id))
       .innerJoin(donationStatus, eq(donation.donationStatusId, donationStatus.id))
+      .where(and(...conditions))
+      .offset(offset)
+      .limit(limit)
+      .orderBy(desc(donation.createdAt))
 
-    if (name) {
-      donationsObtained.where(like(donation.name, `%${name}%`))
-    }
-
-    if (categoryId) {
-      donationsObtained.where(eq(donation.categoryId, categoryId))
-    }
-
-    if (collectionCenterId) {
-      donationsObtained.where(eq(donation.collectionCenterId, collectionCenterId))
-    }
-
-    const donations = await donationsObtained.offset(offset).limit(limit).orderBy(desc(donation.createdAt))
+    const donations = await donationsObtained
 
     return donations.map(donation => ({
       id: donation.id,
@@ -148,7 +156,23 @@ export class PostgresRepository implements DonationRepository {
     }))
   }
 
-  async countDonations(name?: string, categoryId?: string, collectionCenterId?: string): Promise<number> {
+  async countDonations(donationStatusId: string, name?: string, categoryId?: string, collectionCenterId?: string): Promise<number> {
+    const conditions = [
+      eq(donation.donationStatusId, donationStatusId)
+    ]
+  
+    if (name) {
+      conditions.push(like(donation.name, `%${name}%`))
+    }
+  
+    if (categoryId) {
+      conditions.push(eq(donation.categoryId, categoryId))
+    }
+  
+    if (collectionCenterId) {
+      conditions.push(eq(donation.collectionCenterId, collectionCenterId))
+    }
+
     const countDonations = db
       .select({
         count: count()
@@ -159,18 +183,7 @@ export class PostgresRepository implements DonationRepository {
       .innerJoin(user, eq(donar.userId, user.id))
       .innerJoin(collectionCenter, eq(donation.collectionCenterId, collectionCenter.id))
       .innerJoin(donationStatus, eq(donation.donationStatusId, donationStatus.id))
-
-    if (name) {
-      countDonations.where(like(donation.name, `%${name}%`))
-    }
-
-    if (categoryId) {
-      countDonations.where(eq(donation.categoryId, categoryId))
-    }
-
-    if (collectionCenterId) {
-      countDonations.where(eq(donation.collectionCenterId, collectionCenterId))
-    }
+      .where(and(...conditions))
 
     const countResult = await countDonations
     return countResult[0].count

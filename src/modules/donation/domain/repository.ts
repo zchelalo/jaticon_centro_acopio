@@ -23,9 +23,9 @@ export interface DonationRepository {
    * @param {number} limit - The limit of the list.
    * @returns {Promise<DonationEntity>} A promise that resolves to a DonationEntity list.
   */
-  listDonations(offset: number, limit: number, name?: string, categoryId?: string, collectionCenterId?: string): Promise<DonationEntity[]>
+  listDonations(offset: number, limit: number, donationStatusId: string, name?: string, categoryId?: string, collectionCenterId?: string): Promise<DonationEntity[]>
 
-  countDonations(name?: string, categoryId?: string, collectionCenterId?: string): Promise<number>
+  countDonations(donationStatusId: string, name?: string, categoryId?: string, collectionCenterId?: string): Promise<number>
 
   /**
    * Creates a new donar.

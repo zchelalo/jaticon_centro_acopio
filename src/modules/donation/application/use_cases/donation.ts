@@ -86,15 +86,16 @@ export class DonationUseCase {
   public async listDonations(page: number, limit: number, name?: string, categoryId?: string, collectionCenterId?: string): Promise<{ meta: Meta, donations: DonationEntity[] }> {
     listDonationsSchema.parse({ page, limit, name, categoryId, collectionCenterId })
 
-    const count = await this.donationRepository.countDonations(name, categoryId, collectionCenterId)
+    const pendingStatus = await this.donationStatusRepository.getDonationStatusByKey(donationStatus.PENDING)
+
+    const count = await this.donationRepository.countDonations(pendingStatus.id, name, categoryId, collectionCenterId)
     const meta = new Meta({
       page,
       perPage: limit,
       total: count,
       pagLimitDef: process.env.PAGINATION_LIMIT_DEFAULT
     })
-    console.log(meta)
-    const donations = await this.donationRepository.listDonations(meta.getOffset(), meta.getLimit(), name, categoryId, collectionCenterId)
+    const donations = await this.donationRepository.listDonations(meta.getOffset(), meta.getLimit(), pendingStatus.id, name, categoryId, collectionCenterId)
 
     return { meta, donations }
   }
