@@ -73,7 +73,7 @@ export class PostgresRepository implements BeneficiaryRepository {
         }
       })
       .from(beneficiary)
-      .innerJoin(beneficiary, eq(user.id, beneficiary.userId))
+      .innerJoin(user, eq(beneficiary.userId, user.id))
       .where(eq(user.email, email))
       .limit(1)
 

@@ -73,7 +73,7 @@ export class PostgresRepository implements DonarRepository {
         }
       })
       .from(donar)
-      .innerJoin(donar, eq(user.id, donar.userId))
+      .innerJoin(user, eq(donar.userId, user.id))
       .where(eq(user.email, email))
       .limit(1)
 
