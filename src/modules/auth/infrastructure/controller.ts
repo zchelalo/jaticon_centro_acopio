@@ -57,14 +57,14 @@ export class AuthController {
       // Both cookies are with the same expiration time because if the access token expires, the refresh token will be used to generate a new one. 
       res.cookie(cookieNames.ACCESS_TOKEN, authData.accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         sameSite: 'none',
         maxAge: durationToMilliseconds(tokenExpiration[TokenType.REFRESH])
       })
 
       res.cookie(cookieNames.REFRESH_TOKEN, authData.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         sameSite: 'none',
         maxAge: durationToMilliseconds(tokenExpiration[TokenType.REFRESH])
       })
@@ -98,14 +98,14 @@ export class AuthController {
       // Both cookies are with the same expiration time because if the access token expires, the refresh token will be used to generate a new one. 
       res.cookie(cookieNames.ACCESS_TOKEN, authData.accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         sameSite: 'none',
         maxAge: durationToMilliseconds(tokenExpiration[TokenType.REFRESH])
       })
 
       res.cookie(cookieNames.REFRESH_TOKEN, authData.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         sameSite: 'none',
         maxAge: durationToMilliseconds(tokenExpiration[TokenType.REFRESH])
       })
@@ -139,14 +139,14 @@ export class AuthController {
       // Both cookies are with the same expiration time because if the access token expires, the refresh token will be used to generate a new one. 
       res.cookie(cookieNames.ACCESS_TOKEN, authData.accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         sameSite: 'none',
         maxAge: durationToMilliseconds(tokenExpiration[TokenType.REFRESH])
       })
 
       res.cookie(cookieNames.REFRESH_TOKEN, authData.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         sameSite: 'none',
         maxAge: durationToMilliseconds(tokenExpiration[TokenType.REFRESH])
       })
@@ -180,14 +180,14 @@ export class AuthController {
       // Both cookies are with the same expiration time because if the access token expires, the refresh token will be used to generate a new one. 
       res.cookie(cookieNames.ACCESS_TOKEN, authData.accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         sameSite: 'none',
         maxAge: durationToMilliseconds(tokenExpiration[TokenType.REFRESH])
       })
 
       res.cookie(cookieNames.REFRESH_TOKEN, authData.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         sameSite: 'none',
         maxAge: durationToMilliseconds(tokenExpiration[TokenType.REFRESH])
       })
