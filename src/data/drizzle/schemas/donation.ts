@@ -14,6 +14,7 @@ export const donation = pgTable('donations', {
   collectionCenterId: uuid('collection_center_id').notNull().references(() => collectionCenter.id),
   donationStatusId: uuid('donation_status_id').notNull().references(() => donationStatus.id),
   description: text('description').notNull(),
+  imageUrl: text('image_url').notNull(),
   deletedAt: timestamp('deleted_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()

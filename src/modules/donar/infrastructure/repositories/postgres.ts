@@ -2,7 +2,7 @@ import { DonarEntity } from '../../domain/entity'
 import { DonarRepository } from '../../domain/repository'
 import { db } from 'src/data/drizzle/config/orm'
 import { donar, user } from 'src/data/drizzle/schemas'
-import { count, desc, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { BadRequestError, ConflictError, NotFoundError } from 'src/helpers/errors/custom_error'
 
 /**
@@ -108,7 +108,7 @@ export class PostgresRepository implements DonarRepository {
         id: donar.id
       })
       .from(donar)
-      .innerJoin(donar, eq(user.id, donar.userId))
+      .innerJoin(user, eq(donar.userId, user.id))
       .where(eq(user.email, donarData.user.email))
       .limit(1)
 
