@@ -21,6 +21,7 @@ import { tokenTypes } from 'src/config/constants'
 import { DTODonarAuthResponse } from '../dtos/donar_auth_response'
 import { BeneficiaryValue } from 'src/modules/beneficiary/domain/value'
 import { DonarValue } from 'src/modules/donar/domain/value'
+import { DTOUserResponse } from 'src/modules/user/application/dtos/user_response'
 
 /**
  * Create a new Auth Use Case.
@@ -110,7 +111,10 @@ export class AuthUseCase {
     const authValue = new DTOBeneficiaryAuthResponse({
       accessToken,
       refreshToken,
-      beneficiary: beneficiaryObtained
+      beneficiary: {
+        id: beneficiaryObtained.id,
+        user: new DTOUserResponse(beneficiaryObtained.user)
+      }
     })
 
     return authValue
@@ -154,7 +158,10 @@ export class AuthUseCase {
     const authValue = new DTODonarAuthResponse({
       accessToken,
       refreshToken,
-      donar: donarObtained
+      donar: {
+        id: donarObtained.id,
+        user: new DTOUserResponse(donarObtained.user)
+      }
     })
 
     return authValue
@@ -196,7 +203,10 @@ export class AuthUseCase {
     const authValue = new DTOBeneficiaryAuthResponse({
       accessToken,
       refreshToken,
-      beneficiary: beneficiaryCreated
+      beneficiary: {
+        id: beneficiaryCreated.id,
+        user: new DTOUserResponse(beneficiaryCreated.user)
+      }
     })
 
     return authValue
@@ -238,7 +248,10 @@ export class AuthUseCase {
     const authValue = new DTODonarAuthResponse({
       accessToken,
       refreshToken,
-      donar: donarCreated
+      donar: {
+        id: donarCreated.id,
+        user: new DTOUserResponse(donarCreated.user)
+      }
     })
 
     return authValue
